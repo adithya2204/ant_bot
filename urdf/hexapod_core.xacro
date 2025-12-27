@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hexapod">
+
+  <xacro:property name="pkg_name" value="ant_bot" />
+  <xacro:property name="mesh_path" value="package://${pkg_name}/meshes" />
+
+  <xacro:property name="center_offset_x" value="0.0142" />
+  <xacro:property name="center_offset_y" value="-0.0095" />
+  <xacro:property name="center_offset_z" value="-0.0056" />
+
+  <link name="base_link"/>
+
+  <link name="hexa_base">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/> 
+      <mass value="0.1655"/>
+      <inertia ixx="0.000174" ixy="-2.23e-07" ixz="0.0" iyy="0.000632" iyz="0.0" izz="0.000806"/>
+    </inertial>
+    <visual>
+      <origin xyz="${-center_offset_x} ${-center_offset_y} ${-center_offset_z}" rpy="0 0 0"/>
+      <geometry><mesh filename="${mesh_path}/hexa_base.STL"/></geometry>
+      <material name="ant_blue"><color rgba="0.79 0.82 0.93 1"/></material>
+    </visual>
+    <collision>
+      <origin xyz="${-center_offset_x} ${-center_offset_y} ${-center_offset_z}" rpy="0 0 0"/>
+      <geometry><mesh filename="${mesh_path}/hexa_base.STL"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="base_link_to_hexa_base" type="fixed">
+    <parent link="base_link"/>
+    <child link="hexa_base"/>
+  </joint>
+
+  <xacro:macro name="ant_leg" params="num xyz_original rpy_mount coxa_lim femur_lim tibia_lim">
+
+    <xacro:property name="x_centered" value="${float(xyz_original.split(' ')[0]) - center_offset_x}" />
+    <xacro:property name="y_centered" value="${float(xyz_original.split(' ')[1]) - center_offset_y}" />
+    <xacro:property name="z_centered" value="${float(xyz_original.split(' ')[2]) - center_offset_z}" />
+
+    <link name="leg${num}_base">
+      <inertial>
+        <origin xyz="-0.0087 -0.0087 -0.0205" rpy="0 0 0" />
+        <mass value="0.0343" />
+        <inertia ixx="6.64e-06" ixy="-2.02e-06" ixz="-1.51e-08" iyy="6.64e-06" iyz="-1.72e-08" izz="7.38e-06" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry><mesh filename="${mesh_path}/leg_base.STL" /></geometry>
+        <material name="white"><color rgba="1 1 1 1" /></material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry><mesh filename="${mesh_path}/leg_base.STL" /></geometry>
+      </collision>
+    </link>
+
+    <joint name="leg${num}_base_joint" type="fixed">
+      <origin xyz="${x_centered} ${y_centered} 0.014" rpy="${rpy_mount}" />
+      <parent link="hexa_base" />
+      <child link="leg${num}_base" />
+    </joint>
+
+    <link name="leg${num}_coxa">
+      <inertial>
+        <origin xyz="0.0190 0.0184 -0.0206" rpy="0 0 0" />
+        <mass value="0.0193" />
+        <inertia ixx="6.68e-06" ixy="4.30e-07" ixz="0.0" iyy="6.65e-06" iyz="0.0" izz="6.23e-06" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry><mesh filename="${mesh_path}/leg_coxa.STL" /></geometry>
+        <material name="ant_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry><mesh filename="${mesh_path}/leg_coxa.STL" /></geometry>
+      </collision>
+    </link>
+
+    <joint name="leg${num}_coxa_joint" type="revolute">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="leg${num}_base" />
+      <child link="leg${num}_coxa" />
+      <axis xyz="0 0 1" />
+      <limit lower="${coxa_lim.split(' ')[0]}" upper="${coxa_lim.split(' ')[1]}" effort="100.0" velocity="20.0" />
+      <dynamics damping="0.7" friction="0.1"/>
+    </joint>
+
+    <link name="leg${num}_femur">
+      <inertial>
+        <origin xyz="-0.0225 -0.0019 -0.0205" rpy="0 0 0" />
+        <mass value="0.0467" />
+        <inertia ixx="1.02e-05" ixy="-1.05e-06" ixz="-1.41e-08" iyy="1.49e-05" iyz="1.74e-08" izz="1.06e-05" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry><mesh filename="${mesh_path}/leg_femur.STL" /></geometry>
+        <material name="ant_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry><mesh filename="${mesh_path}/leg_femur.STL" /></geometry>
+      </collision>
+    </link>
+
+    <joint name="leg${num}_femur_joint" type="revolute">
+      <origin xyz="0.0237 0.0516 -0.0206" rpy="1.570796 0 -2.3731" />
+      <parent link="leg${num}_coxa" />
+      <child link="leg${num}_femur" />
+      <axis xyz="0 0 1" />
+      <limit lower="${femur_lim.split(' ')[0]}" upper="${femur_lim.split(' ')[1]}" effort="100.0" velocity="20.0" />
+      <dynamics damping="0.7" friction="0.1"/>
+    </joint>
+
+    <link name="leg${num}_tibia">
+      <inertial>
+        <origin xyz="-0.0102 -0.0344 -0.0203" rpy="0 0 0" />
+        <mass value="0.0560" />
+        <inertia ixx="3.51e-05" ixy="5.15e-06" ixz="5.23e-08" iyy="1.56e-05" iyz="-2.02e-07" izz="3.41e-05" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry><mesh filename="${mesh_path}/leg_tibia.STL" /></geometry>
+        <material name="ant_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry><mesh filename="${mesh_path}/leg_tibia.STL" /></geometry>
+      </collision>
+    </link>
+
+    <joint name="leg${num}_tibia_joint" type="revolute">
+      <origin xyz="-0.0662 -0.0175 -0.0002" rpy="0.0094 -0.0084 0" />
+      <parent link="leg${num}_femur" />
+      <child link="leg${num}_tibia" />
+      <axis xyz="0 0 -1" />
+      <limit lower="${tibia_lim.split(' ')[0]}" upper="${tibia_lim.split(' ')[1]}" effort="100.0" velocity="20.0" />
+      <dynamics damping="0.7" friction="0.1"/>
+    </joint>
+
+  </xacro:macro>
+
+  <xacro:ant_leg num="1" 
+    xyz_original="0.140287 0.056188 0.014079" rpy_mount="0 0 0.0"
+    coxa_lim="-1.00 0.60" femur_lim="-1.75 0.55" tibia_lim="-1.00 2.60" />
+
+  <xacro:ant_leg num="2" 
+    xyz_original="0.014183 0.092073 0.013912" rpy_mount="0 0 0.785"
+    coxa_lim="-0.60 0.55" femur_lim="-1.75 0.55" tibia_lim="-1.00 2.60" />
+
+  <xacro:ant_leg num="3" 
+    xyz_original="-0.1119 0.056453 0.014079" rpy_mount="0 0 1.57"
+    coxa_lim="-0.55 1.00" femur_lim="-1.75 0.55" tibia_lim="-1.00 2.60" />
+
+  <xacro:ant_leg num="4" 
+    xyz_original="-0.11174 -0.075706 0.013913" rpy_mount="0 0 3.14159"
+    coxa_lim="-1.00 0.60" femur_lim="-1.75 0.55" tibia_lim="-1.00 2.60" />
+
+  <xacro:ant_leg num="5" 
+    xyz_original="0.01442 -0.11114 0.013912" rpy_mount="0 0 -2.3562"
+    coxa_lim="-0.60 0.55" femur_lim="-1.75 0.55" tibia_lim="-1.00 2.60" />
+
+  <xacro:ant_leg num="6" 
+    xyz_original="0.139700 -0.075996 0.014079" rpy_mount="0 0 -1.57"
+    coxa_lim="-0.55 1.00" femur_lim="-1.75 0.55" tibia_lim="-1.00 2.60" />
+
+</robot>

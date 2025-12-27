@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="controllers_yaml" default="$(find ant_bot)/config/controllers.yaml" />
+
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+    
+    <joint name="leg1_coxa_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg1_femur_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg1_tibia_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+
+    <joint name="leg2_coxa_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg2_femur_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg2_tibia_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+
+    <joint name="leg3_coxa_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg3_femur_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg3_tibia_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+
+    <joint name="leg4_coxa_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg4_femur_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg4_tibia_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+
+    <joint name="leg5_coxa_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg5_femur_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg5_tibia_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+
+    <joint name="leg6_coxa_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg6_femur_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="leg6_tibia_joint"><command_interface name="position"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+  </ros2_control>
+
+  <gazebo>
+    <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+      <ros>
+        <namespace>/</namespace>
+      </ros>
+      <parameters>$(arg controllers_yaml)</parameters>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="hexa_base">
+    <gravity>true</gravity>
+    <selfCollide>false</selfCollide>
+    <dampingFactor>0.1</dampingFactor>
+    <sensor name="ant_imu" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <visualize>true</visualize>
+      <topic>__default_topic__</topic>
+      <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+        <ros>
+          <namespace>/ant_bot</namespace>
+          <remapping>~/out:=imu</remapping>
+        </ros>
+        <initial_orientation_as_reference>false</initial_orientation_as_reference>
+      </plugin>
+      <pose>0 0 0 0 0 0</pose>
+      <imu>
+        <angular_velocity>
+          <x><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></x>
+          <y><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></y>
+          <z><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></x>
+          <y><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></y>
+          <z><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></z>
+        </linear_acceleration>
+      </imu>
+    </sensor>
+  </gazebo>
+
+  <xacro:macro name="leg_physics" params="num">
+    <gazebo reference="leg${num}_base"><selfCollide>false</selfCollide><gravity>true</gravity></gazebo>
+    <gazebo reference="leg${num}_coxa"><selfCollide>false</selfCollide><gravity>true</gravity></gazebo>
+    <gazebo reference="leg${num}_femur"><selfCollide>false</selfCollide><gravity>true</gravity></gazebo>
+    <gazebo reference="leg${num}_tibia">
+      <selfCollide>false</selfCollide>
+      <surface>
+        <contact>
+          <ode>
+            <kp>1000000.0</kp>
+            <kd>10.0</kd>
+            <max_vel>0.01</max_vel>
+            <min_depth>0.001</min_depth>
+          </ode>
+        </contact>
+        <friction>
+          <ode>
+            <mu>2.0</mu>
+            <mu2>2.0</mu2>
+            <fdir1>0 0 0</fdir1>
+          </ode>
+        </friction>
+      </surface>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:leg_physics num="1"/><xacro:leg_physics num="2"/><xacro:leg_physics num="3"/>
+  <xacro:leg_physics num="4"/><xacro:leg_physics num="5"/><xacro:leg_physics num="6"/>
+
+</robot>

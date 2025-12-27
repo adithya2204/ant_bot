@@ -1,0 +1,26 @@
+# --------------------
+# ROS 2 Standard Ignores
+# --------------------
+build/
+install/
+log/
+# These directories are generated when you run 'colcon build'
+# and should NEVER be version controlled.
+
+# --------------------
+# Python
+# --------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+
+# --------------------
+# IDE & System
+# --------------------
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*~
