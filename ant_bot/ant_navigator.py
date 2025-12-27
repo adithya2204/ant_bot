@@ -21,7 +21,6 @@ class AntNavigator(Node):
         self.position_x = 0.0
         self.position_y = 0.0
         
-        # SPEED CALIBRATION (0.11 m/s)
         self.ROBOT_SPEED = 0.11  
 
         # ---------------- MISSION PARAMETERS ----------------
@@ -39,7 +38,7 @@ class AntNavigator(Node):
         self.last_recheck_time = 0.0
         self.RECHECK_INTERVAL = 4.0 
 
-        # ---------------- LOGIC LOOP (10Hz) ----------------
+        # LOGIC LOOP (10Hz)
         self.timer = self.create_timer(0.1, self.game_loop)
         self.last_time = self.get_clock().now()
 
@@ -88,7 +87,7 @@ class AntNavigator(Node):
         elif self.state == "WALK_HOME":
             dist = math.sqrt(self.position_x**2 + self.position_y**2)
             
-            # A. RE-CHECK ALIGNMENT (Every 4 seconds)
+            # A. RE-CHECK ALIGNMENT
             if (now_sec - self.last_recheck_time) > self.RECHECK_INTERVAL:
                 self.last_recheck_time = now_sec
                 correct_yaw = math.atan2(-self.position_y, -self.position_x)
@@ -97,13 +96,11 @@ class AntNavigator(Node):
                 error = abs(correct_yaw - self.current_yaw)
                 if error > math.pi: error = 2*math.pi - error
                 
-                # If error > 10 degrees, force a stop and turn
+                # If error > 10 degrees, re-align
                 if error > 0.17:
                     self.get_logger().info(f"Drift Detected ({error:.2f} rad). Re-aligning...")
                     self.target_yaw = correct_yaw
                     self.state = "TURN_HOME"
-                    # NOTE: We don't call decide_turn_direction here anymore.
-                    # monitor_turn handles it dynamically now.
                     return 
 
             # B. LOGGING
@@ -131,18 +128,14 @@ class AntNavigator(Node):
         self.last_recheck_time = self.get_clock().now().nanoseconds / 1e9
 
     def monitor_turn(self, next_state):
-        """
-        Active Steering: Calculates the shortest turn direction continuously.
-        This ensures both LEFT and RIGHT re-alignment work correctly.
-        """
-        # 1. Calculate Error (Signed)
+        # 1. Calculate Error
         diff = self.target_yaw - self.current_yaw
         
         # 2. Normalize to -pi to +pi
         while diff > math.pi: diff -= 2*math.pi
         while diff < -math.pi: diff += 2*math.pi
         
-        # 3. Check Magnitude (Are we there yet?)
+        # 3. Check Magnitude
         error_mag = abs(diff)
         
         if error_mag < 0.08: # ~4.5 degrees tolerance
@@ -151,9 +144,6 @@ class AntNavigator(Node):
             self.state = next_state
             self.get_logger().info(f"Heading Locked. Walking {next_state}...")
         else:
-            # 4. ACTIVE SWITCHING (The Fix)
-            # If diff is positive, Target is to the LEFT.
-            # If diff is negative, Target is to the RIGHT.
             if diff > 0:
                 self.cmd_pub.publish(String(data="LEFT"))
             else:

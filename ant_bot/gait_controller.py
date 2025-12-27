@@ -37,9 +37,7 @@ class GaitController(Node):
         # ---------------- SPIN 360 LOGIC ----------------
         self.return_mode = "STAND"
         self.total_turned = 0.0        
-        self.last_imu_yaw = 0.0        
-        # Target ~358 degrees (6.25 rad). 
-        # Since we fixed the "vibration bug", this will now be accurate.
+        self.last_imu_yaw = 0.0
         self.TARGET_SPIN_RAD = 6.25    
 
         # ---------------- SOFT START ----------------
@@ -119,19 +117,16 @@ class GaitController(Node):
         if self.current_mode != "SPIN360":
             return
 
-        # Calculate smallest difference (handling wrap-around)
+        # 1. Calculate Difference
         diff = self.current_yaw - self.last_imu_yaw
         if diff > math.pi:
             diff -= 2 * math.pi
         elif diff < -math.pi:
             diff += 2 * math.pi
-            
-        # FIX: Sum the SIGNED difference (diff), not absolute (abs(diff)).
-        # This allows backward vibrations to cancel out forward vibrations.
+
         self.total_turned += diff
         self.last_imu_yaw = self.current_yaw
 
-        # Check completion using absolute value of the total sum
         if abs(self.total_turned) >= self.TARGET_SPIN_RAD:
             self.get_logger().info("360 Spin Complete! Resuming motion.")
             
@@ -200,7 +195,7 @@ class GaitController(Node):
         elif self.current_mode == "RIGHT":
             turn_target = -self.TURN_AMP 
         elif self.current_mode == "SPIN360":
-            turn_target = self.TURN_AMP # Spin Left
+            turn_target = self.TURN_AMP 
 
         current_drive = drive_target * ramp
         current_turn = turn_target * ramp
