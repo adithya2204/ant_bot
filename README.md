@@ -7,7 +7,7 @@
 
 ## Features
 * **Custom Gait Controller:** Implementation of a tripod gait with specific "soft-start" ramping and directional control.
-* **Path Integration:** `ant_navigator` node that performs dead reckoning to return to home (0,0) after foraging.
+* **Path Integration:** `ant_navigator` node that returns to home (0,0) after randomly exploring for t seconds.
 * **Physics Simulation:** Full URDF/Xacro model with Gazebo plugins for IMU and `ros2_control`.
 * **Vibration Fix:** Includes specific logic to handle 360-degree spins without drift/vibration issues.
 
