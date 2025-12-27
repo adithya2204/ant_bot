@@ -28,7 +28,7 @@
 
 2.  **Clone the Repository:**
     ```bash
-    git clone [https://github.com/YOUR_USERNAME/ant_bot.git](https://github.com/YOUR_USERNAME/ant_bot.git)
+    git clone https://github.com/adithya2204/ant_bot.git
     ```
 
 3.  **Install Dependencies:**
