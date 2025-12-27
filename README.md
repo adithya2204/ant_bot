@@ -6,7 +6,7 @@
 **Ant Bot** is a ROS 2 simulation of a hexapod robot capable of bio-inspired navigation and locomotion. It features a custom gait controller for tripod walking, path integration for homing, and a physics-based Gazebo simulation.
 
 ## Features
-* **Custom Gait Controller:** Implementation of a tripod gait with specific "soft-start" ramping and directional control.
+* **Custom Gait Controller:** Implementation of a tripod gait with directional control.
 * **Path Integration:** `ant_navigator` node that returns to home (0,0) after randomly exploring for t seconds.
 * **Physics Simulation:** Full URDF/Xacro model with Gazebo plugins for IMU and `ros2_control`.
 * **Vibration Fix:** Includes specific logic to handle 360-degree spins without drift/vibration issues.
