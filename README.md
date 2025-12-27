@@ -59,6 +59,11 @@ ros2 run ant_bot ant_navigatior
 ## Snippets:
 ### Start Position:
 
+
 ### End Positon:
 
+
 ### Yaw correction in homing algorithm validated through gazebo graph:
+
+![Realignment of yaw while homing](images/realignment%20of%20yaw%20while%20homing.png)
+
