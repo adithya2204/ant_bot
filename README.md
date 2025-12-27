@@ -49,7 +49,7 @@
 This launches the robot in Gazebo, spawns the controllers, and starts the gait manager.
 
 ```bash
-ros2 launch ant_bot display.launch.py
+ros2 launch ant_bot ant_bot.launch.py
 ```
 ### 1. Run the navigation node
 This will run the core logic for the random exploration, yaw control and calulation and homing return algorithm
